@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using OctopusController;
+using UnityEngine.UI;
 
 public class IK_Scorpion : MonoBehaviour
 {
@@ -26,12 +27,21 @@ public class IK_Scorpion : MonoBehaviour
     public Transform[] legTargets;
     public Transform[] futureLegBases;
 
+    private Vector3 originalPosition;
+    private MovingBall ball;
+    private Slider strengthSlider;
+    private float sliderSpeed = 20f;
+    private bool up = true;
+
+
     // Start is called before the first frame update
     void Start()
     {
         _myController.InitLegs(legs,futureLegBases,legTargets);
         _myController.InitTail(tail);
-
+        originalPosition = transform.GetChild(0).position;
+        strengthSlider = GameObject.Find("Strength").GetComponentInChildren<Slider>();
+        ball = GameObject.Find("Ball").GetComponent<MovingBall>();
     }
 
     // Update is called once per frame
@@ -42,11 +52,22 @@ public class IK_Scorpion : MonoBehaviour
 
         NotifyTailTarget();
         
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space))
         {
+            ball.shootSpeed = strengthSlider.value;
             NotifyStartWalk();
             animTime = 0;
             animPlaying = true;
+            up = true;
+        }
+        else if (Input.GetKey(KeyCode.Space))
+        {
+            if(up)
+                strengthSlider.value += sliderSpeed * Time.deltaTime;
+            else
+                strengthSlider.value -= sliderSpeed * Time.deltaTime;
+            if (strengthSlider.value == strengthSlider.maxValue || strengthSlider.value == strengthSlider.minValue)
+                up = up ? false : true;
         }
 
         if (animTime < animDuration)
@@ -60,6 +81,19 @@ public class IK_Scorpion : MonoBehaviour
         }
 
         _myController.UpdateIK();
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            strengthSlider.value = strengthSlider.minValue;
+            ResetPosition();
+            ball.ResetPosition();
+        }
+
+    }
+
+    void ResetPosition()
+    {
+        transform.GetChild(0).position = originalPosition;
     }
     
     //Function to send the tail target transform to the dll

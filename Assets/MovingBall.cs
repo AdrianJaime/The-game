@@ -11,13 +11,21 @@ public class MovingBall : MonoBehaviour
     [Range(-1.0f, 1.0f)]
     [SerializeField]
     private float _movementSpeed = 5f;
+    private float mass = 1f;
+    private bool shoot = false;
+    private bool stopped = false;
+    private bool goal = true;
+    private GameObject target;
+    private Vector3 dirVec, originalPosition;
 
-    Vector3 _dir;
+    public float shootSpeed;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        target = GameObject.Find("BlueTarget");
+        dirVec = Vector3.zero;
+        originalPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -25,18 +33,34 @@ public class MovingBall : MonoBehaviour
     {
         transform.rotation = Quaternion.identity;
 
-        //get the Input from Horizontal axis
-        float horizontalInput = Input.GetAxis("Horizontal");
-        //get the Input from Vertical axis
-        float verticalInput = Input.GetAxis("Vertical");
-
-        //update the position
-        transform.position = transform.position + new Vector3(-horizontalInput * _movementSpeed * Time.deltaTime, verticalInput * _movementSpeed * Time.deltaTime, 0);
-
+        if (shoot && !stopped)
+        {
+            ShootBall();
+        }
     }
 
+    void ShootBall()
+    {
+        dirVec = target.transform.position - transform.position;
+        dirVec.Normalize();
+
+        gameObject.transform.Translate(dirVec * shootSpeed * Time.deltaTime);
+        Debug.Log("Shot with " + shootSpeed);
+    }
+
+    public void ResetPosition()
+    {
+        dirVec = Vector3.zero;
+        goal = goal == true ? false : true;
+        stopped = false;
+        shoot = false;
+        transform.position = originalPosition;
+    }
     private void OnCollisionEnter(Collision collision)
     {
         _myOctopus.NotifyShoot();
+        shoot = true;
+        if (collision.gameObject.transform.name == "BallRegion")
+            stopped = true;
     }
 }
