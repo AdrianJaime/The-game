@@ -13,11 +13,12 @@ public class MovingBall : MonoBehaviour
     [SerializeField]
     private float _movementSpeed = 5f;
     private float mass = 1f;
+    private float airDensity = 1.225f;
     private bool shoot = false;
     private bool stopped = false;
     private bool goal = true;
     private GameObject target;
-    private Vector3 dirVec, originalPosition;
+    private Vector3 dirVec, originalPosition, velocity;
     private Text rotationVelocityText;
 
     public float shootSpeed, rotationSpeed, effect, actualRotation;
@@ -46,8 +47,12 @@ public class MovingBall : MonoBehaviour
     {
         Vector3 newPos;
 
-        newPos.x = transform.position.x + 
-        gameObject.transform.Translate(dirVec * shootSpeed * Time.deltaTime);
+        newPos.x = transform.position.x + velocity.x * Time.fixedDeltaTime;
+        newPos.y = transform.position.y + velocity.y * Time.fixedDeltaTime;
+        newPos.z = transform.position.z + velocity.z * Time.fixedDeltaTime;
+
+        velocity += Vector3.Cross(dirVec, Vector3.down).normalized * effect * airDensity / mass * Time.fixedDeltaTime;
+        //gameObject.transform.Translate(dirVec * shootSpeed * Time.deltaTime);
 
         actualRotation += effect * shootSpeed * rotationSpeed * Time.deltaTime;
         rotationVelocityText.text = "Rotation Velocity: " + (effect * shootSpeed * rotationSpeed) + " deg/s";
