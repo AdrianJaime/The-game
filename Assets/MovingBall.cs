@@ -47,12 +47,12 @@ public class MovingBall : MonoBehaviour
     {
         Vector3 newPos;
 
-        newPos.x = transform.position.x + velocity.x * Time.fixedDeltaTime;
-        newPos.y = transform.position.y + velocity.y * Time.fixedDeltaTime;
-        newPos.z = transform.position.z + velocity.z * Time.fixedDeltaTime;
+        newPos.x = transform.position.x + dirVec.x * Time.fixedDeltaTime;
+        newPos.y = transform.position.y + dirVec.y * Time.fixedDeltaTime;
+        newPos.z = transform.position.z + dirVec.z * Time.fixedDeltaTime;
 
         velocity += Vector3.Cross(dirVec, Vector3.down).normalized * effect * airDensity / mass * Time.fixedDeltaTime;
-        //gameObject.transform.Translate(dirVec * shootSpeed * Time.deltaTime);
+        gameObject.transform.Translate(dirVec * shootSpeed * Time.deltaTime);
 
         actualRotation += effect * shootSpeed * rotationSpeed * Time.deltaTime;
         rotationVelocityText.text = "Rotation Velocity: " + (effect * shootSpeed * rotationSpeed) + " deg/s";
@@ -74,7 +74,7 @@ public class MovingBall : MonoBehaviour
 
         if (collision.gameObject.transform.name == "BallRegion" && !goal)
             stopped = true;
-        else if (goal && !shoot)
+        else if (!shoot)
         {
         _myOctopus.NotifyShoot();
         shoot = true;

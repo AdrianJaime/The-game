@@ -30,7 +30,7 @@ public class IK_Scorpion : MonoBehaviour
 
     private Vector3 originalPosition;
     private MovingBall ball;
-    private Slider strengthSlider;
+    private Slider strengthSlider, effectSlider;
     private float sliderSpeed = 20f;
     private bool up = true;
 
@@ -44,6 +44,7 @@ public class IK_Scorpion : MonoBehaviour
         _myController.InitTail(tail);
         originalPosition = transform.GetChild(0).position;
         strengthSlider = GameObject.Find("Strength").GetComponentInChildren<Slider>();
+        effectSlider = GameObject.Find("Angle").GetComponentInChildren<Slider>();
         ball = GameObject.Find("Ball").GetComponent<MovingBall>();
     }
 
@@ -58,6 +59,7 @@ public class IK_Scorpion : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space))
         {
             ball.shootSpeed = strengthSlider.value;
+            ball.effect = effectSlider.value;
             NotifyStartWalk();
             animTime = 0;
             animPlaying = true;
@@ -71,6 +73,15 @@ public class IK_Scorpion : MonoBehaviour
                 strengthSlider.value -= sliderSpeed * Time.deltaTime;
             if (strengthSlider.value == strengthSlider.maxValue || strengthSlider.value == strengthSlider.minValue)
                 up = up ? false : true;
+        }
+
+        if (Input.GetKey(KeyCode.Z))
+        {
+            effectSlider.value -= Time.deltaTime;
+        }
+        else if (Input.GetKey(KeyCode.X))
+        {
+            effectSlider.value += Time.deltaTime;
         }
 
         if (animTime < animDuration)
