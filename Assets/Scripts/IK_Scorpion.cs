@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class IK_Scorpion : MonoBehaviour
 {
-    MyScorpionController _myController= new MyScorpionController();
+    MyScorpionController _myController = new MyScorpionController();
 
     public IK_tentacles _myOctopus;
 
@@ -26,6 +26,7 @@ public class IK_Scorpion : MonoBehaviour
     public Transform[] legs;
     public Transform[] legTargets;
     public Transform[] futureLegBases;
+    public GameObject[] legBases;
 
     private Vector3 originalPosition;
     private MovingBall ball;
@@ -33,11 +34,13 @@ public class IK_Scorpion : MonoBehaviour
     private float sliderSpeed = 20f;
     private bool up = true;
 
+    RaycastHit hit;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        _myController.InitLegs(legs,futureLegBases,legTargets);
+        _myController.InitLegs(legs, futureLegBases, legTargets);
         _myController.InitTail(tail);
         originalPosition = transform.GetChild(0).position;
         strengthSlider = GameObject.Find("Strength").GetComponentInChildren<Slider>();
@@ -47,11 +50,11 @@ public class IK_Scorpion : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(animPlaying)
+        if (animPlaying)
             animTime += Time.deltaTime;
 
         NotifyTailTarget();
-        
+
         if (Input.GetKeyUp(KeyCode.Space))
         {
             ball.shootSpeed = strengthSlider.value;
@@ -62,7 +65,7 @@ public class IK_Scorpion : MonoBehaviour
         }
         else if (Input.GetKey(KeyCode.Space))
         {
-            if(up)
+            if (up)
                 strengthSlider.value += sliderSpeed * Time.deltaTime;
             else
                 strengthSlider.value -= sliderSpeed * Time.deltaTime;
@@ -81,7 +84,7 @@ public class IK_Scorpion : MonoBehaviour
         }
 
         _myController.UpdateIK();
-
+        EnvironmentReacting();
         if (Input.GetKeyDown(KeyCode.R))
         {
             strengthSlider.value = strengthSlider.minValue;
@@ -95,7 +98,7 @@ public class IK_Scorpion : MonoBehaviour
     {
         transform.GetChild(0).position = originalPosition;
     }
-    
+
     //Function to send the tail target transform to the dll
     public void NotifyTailTarget()
     {
@@ -107,5 +110,16 @@ public class IK_Scorpion : MonoBehaviour
     {
 
         _myController.NotifyStartWalk();
+    }
+
+    public void EnvironmentReacting()
+    {
+        for (int i = 0; i < futureLegBases.Length; i++)
+        {
+            Physics.Raycast(futureLegBases[i].transform.position + new Vector3(0, 1, 0), futureLegBases[i].transform.TransformDirection(Vector3.down), out hit, 2);
+            futureLegBases[i].transform.position = hit.point;
+        }
+
+        Body.GetChild(1).transform.up = Vector3.Cross(futureLegBases[1].transform.position - futureLegBases[4].transform.position, futureLegBases[0].transform.position - futureLegBases[5].transform.position).normalized;
     }
 }
