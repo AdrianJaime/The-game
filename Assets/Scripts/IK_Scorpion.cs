@@ -26,12 +26,15 @@ public class IK_Scorpion : MonoBehaviour
     public Transform[] legs;
     public Transform[] legTargets;
     public Transform[] futureLegBases;
+    public GameObject[] legBases;
 
     private Vector3 originalPosition;
     private MovingBall ball;
     private Slider strengthSlider;
     private float sliderSpeed = 20f;
     private bool up = true;
+
+    RaycastHit hit;
 
 
     // Start is called before the first frame update
@@ -81,7 +84,7 @@ public class IK_Scorpion : MonoBehaviour
         }
 
         _myController.UpdateIK();
-
+        EnvironmentReacting();
         if (Input.GetKeyDown(KeyCode.R))
         {
             strengthSlider.value = strengthSlider.minValue;
@@ -107,5 +110,16 @@ public class IK_Scorpion : MonoBehaviour
     {
 
         _myController.NotifyStartWalk();
+    }
+
+    public void EnvironmentReacting()
+    {
+        for (int i = 0; i < futureLegBases.Length; i++)
+        {
+            Physics.Raycast(futureLegBases[i].transform.position + new Vector3(0, 1, 0), futureLegBases[i].transform.TransformDirection(Vector3.down), out hit, 2);
+            futureLegBases[i].transform.position = hit.point;
+        }
+
+        Body.GetChild(1).transform.up = Vector3.Cross(futureLegBases[1].transform.position - futureLegBases[4].transform.position, futureLegBases[0].transform.position - futureLegBases[5].transform.position).normalized;
     }
 }
