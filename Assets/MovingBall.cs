@@ -22,6 +22,7 @@ public class MovingBall : MonoBehaviour
     private Text rotationVelocityText;
 
     public float shootSpeed, rotationSpeed, effect, actualRotation;
+    public Animator[] animators;
 
     // Start is called before the first frame update
     void Start()
@@ -68,18 +69,28 @@ public class MovingBall : MonoBehaviour
         stopped = false;
         shoot = false;
         transform.position = originalPosition;
+        
     }
     private void OnCollisionEnter(Collision collision)
     {
 
-        if (collision.gameObject.transform.name == "BallRegion" && !goal)
-            stopped = true;
+        if (collision.gameObject.transform.name == "BallRegion")
+        {
+            if (!goal)
+            {
+                foreach (Animator element in animators) element.SetTrigger("Fail");
+                stopped = true;
+            }
+            else
+                foreach (Animator element in animators) element.SetTrigger("Goal");
+
+        }
         else if (!shoot)
         {
-        _myOctopus.NotifyShoot();
-        shoot = true;
-        dirVec = target.transform.position - transform.position;
-        dirVec.Normalize();
+            _myOctopus.NotifyShoot();
+            shoot = true;
+            dirVec = target.transform.position - transform.position;
+            dirVec.Normalize();
         }
     }
 }
